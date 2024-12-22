@@ -6,7 +6,7 @@
 // Execute `rustlings hint lifetimes2` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
+
 
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
     if x.len() > y.len() {
@@ -20,8 +20,11 @@ fn main() {
     let string1 = String::from("long string is long");
     let result;
     {
-        let string2 = String::from("xyz");
-        result = longest(string1.as_str(), string2.as_str());
+        // let string = String::from("xyz");   // 该参数生命周期是 {} 结束
+        let string2 = "xyz";             // 该参数生命周期是程序运行时间
+        // result = longest(string1.as_str(), string2.as_str());
+        result = longest(string1.as_str(), string2);
     }
     println!("The longest string is '{}'", result);
 }
+
