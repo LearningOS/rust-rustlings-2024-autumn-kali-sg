@@ -3,7 +3,7 @@
 // Execute `rustlings hint threads3` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
+
 
 use std::sync::mpsc;
 use std::sync::Arc;
@@ -26,15 +26,25 @@ impl Queue {
     }
 }
 
+// Rust 的标准库中的通道（std::sync::mpsc）本身就是线程安全的，设计上允许多个生产者（sender）和一个消费者（receiver）。
 fn send_tx(q: Queue, tx: mpsc::Sender<u32>) -> () {
     let qc = Arc::new(q);
     let qc1 = Arc::clone(&qc);
     let qc2 = Arc::clone(&qc);
 
+    /* mpsc::Sender<u32> 类型并没有实现 Copy 特性，所以当你第一次在闭包中使用 move || { ... tx.send(*val) ... } 时，
+     * tx 被移动到了第一个线程中。然后当第二个线程试图再次使用 tx 时，编译器就会报错，因为 tx 已经被移动且不能再用。
+     * 要解决这个问题，你可以使用 mpsc::channel 函数返回的 Sender 来创建多个发送者。Sender 实现了 Clone 特性，
+     * 因此你可以通过调用 clone() 方法来复制 Sender，从而让每个线程都有自己的 Sender 实例。 */
+
+     let tx1 = tx.clone();  // 对原有的tx进行复制，防止所有权转移导致错误
+     let tx2 = tx.clone();
+ 
+
     thread::spawn(move || {
         for val in &qc1.first_half {
             println!("sending {:?}", val);
-            tx.send(*val).unwrap();
+            tx1.send(*val).unwrap();
             thread::sleep(Duration::from_secs(1));
         }
     });
@@ -42,7 +52,7 @@ fn send_tx(q: Queue, tx: mpsc::Sender<u32>) -> () {
     thread::spawn(move || {
         for val in &qc2.second_half {
             println!("sending {:?}", val);
-            tx.send(*val).unwrap();
+            tx2.send(*val).unwrap();
             thread::sleep(Duration::from_secs(1));
         }
     });
