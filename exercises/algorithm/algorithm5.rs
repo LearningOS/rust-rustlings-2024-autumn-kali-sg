@@ -3,7 +3,7 @@
 	This problem requires you to implement a basic BFS algorithm
 */
 
-//I AM NOT DONE
+
 use std::collections::VecDeque;
 
 // Define a graph
@@ -29,8 +29,26 @@ impl Graph {
     fn bfs_with_return(&self, start: usize) -> Vec<usize> {
         
 		//TODO
-
         let mut visit_order = vec![];
+        visit_order.push(start);
+        let mut visit_queue: VecDeque<usize>  = VecDeque::new();         // 定义一个双端队列，前进后出
+        visit_queue.push_front(start);
+        while visit_queue.len() > 0 {
+            let cur_node = visit_queue.pop_back().unwrap();       // while循环条件判断了queue非空，所以unwrap()是安全的
+            for &side in &self.adj[cur_node] {                    // 遍历存储矩阵的每一行的每个边
+                let mut have_visited = false;                      // 标记当前边是否已经被遍历过了
+                for &visited_side in &visit_order{                // 查找已经遍历的边，看当前查找的边是否已经存在
+                    if side == visited_side{
+                        have_visited = true;                             // 存在，则标记为已经遍历过
+                        break;                                           // 直接结束循环 
+                    }
+                }
+                if have_visited == false{                                // 将没有遍历过的边放入队列中、放入遍历顺序表中 
+                    visit_queue.push_front(side);
+                    visit_order.push(side);
+                }
+            }
+        }
         visit_order
     }
 }

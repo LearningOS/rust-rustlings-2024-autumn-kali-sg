@@ -2,7 +2,7 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
+
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -16,11 +16,11 @@ impl<T> Queue<T> {
         }
     }
 
-    pub fn enqueue(&mut self, value: T) {
+    pub fn enqueue(&mut self, value: T) {    // 入队
         self.elements.push(value)
     }
 
-    pub fn dequeue(&mut self) -> Result<T, &str> {
+    pub fn dequeue(&mut self) -> Result<T, &str> {  // 出队
         if !self.elements.is_empty() {
             Ok(self.elements.remove(0usize))
         } else {
@@ -55,6 +55,9 @@ impl<T> Default for Queue<T> {
 pub struct myStack<T>
 {
 	//TODO
+    length: usize,
+    front: u32,
+    back: u32,
 	q1:Queue<T>,
 	q2:Queue<T>
 }
@@ -62,20 +65,49 @@ impl<T> myStack<T> {
     pub fn new() -> Self {
         Self {
 			//TODO
+            length: 0,
+            front: 1,
+            back: 2,
 			q1:Queue::<T>::new(),
 			q2:Queue::<T>::new()
         }
     }
     pub fn push(&mut self, elem: T) {
         //TODO
+        self.length += 1;
+        if self.front == 1{
+            self.q1.enqueue(elem);
+            while self.q2.size() > 0{
+                self.q1.enqueue(self.q2.dequeue().unwrap());
+            }
+        } else {
+            self.q2.enqueue(elem);
+            while self.q1.size() > 0{
+                self.q2.enqueue(self.q1.dequeue().unwrap());
+            }
+        }
+        let c = self.front;                    // 交换队首队尾标记 
+        self.front = self.back;
+        self.back = c;
     }
     pub fn pop(&mut self) -> Result<T, &str> {
         //TODO
-		Err("Stack is empty")
+        let queue = if self.back == 2 {&mut self.q2} else {&mut self.q1};
+        match queue.dequeue(){         // 队列返回的是Result<T>，用Ok()和Err()处理  // Option用Some()和None处理
+            Ok(e) => {
+                self.length -= 1;
+                Ok(e)
+            },
+            Err(e) => Err("Stack is empty"),
+        }
     }
     pub fn is_empty(&self) -> bool {
 		//TODO
-        true
+        if self.length == 0 {
+            true
+        } else {
+            false
+        }
     }
 }
 
