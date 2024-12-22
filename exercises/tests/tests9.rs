@@ -27,7 +27,7 @@
 //
 // You should NOT modify any existing code except for adding two lines of attributes.
 
-// I AM NOT DONE
+
 
 extern "Rust" {
     fn my_demo_function(a: u32) -> u32;
@@ -36,7 +36,14 @@ extern "Rust" {
 
 mod Foo {
     // No `extern` equals `extern "Rust"`.
+    #[no_mangle]             // 一个属性，告诉编译器不要混淆这个符号名称，使得它可以被其他语言或链接器直接引用。
     fn my_demo_function(a: u32) -> u32 {
+        a
+    }
+
+    #[no_mangle]
+    #[link_name = "my_demo_function"]    // 一个属性，它告诉编译器当链接时使用指定的名字（这里是 my_demo_function）作为符号名称，而不是默认生成的名字。
+    fn my_demo_function_alias(a: u32) -> u32 {
         a
     }
 }
