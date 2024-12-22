@@ -9,10 +9,10 @@
 // This exercise is meant to show you what to expect when passing data to Cow.
 // Fix the unit tests by checking for Cow::Owned(_) and Cow::Borrowed(_) at the
 // TODO markers.
+// 学会区分如何使用 Cow::Owned(_) 和 Cow::Borrowed(_)
 //
 // Execute `rustlings hint cow1` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
 
 use std::borrow::Cow;
 
@@ -49,6 +49,8 @@ mod tests {
         let mut input = Cow::from(&slice[..]);
         match abs_all(&mut input) {
             // TODO
+            Cow::Borrowed(_) => Ok(()),
+            _ => Err("Expected borrowed value"),
         }
     }
 
@@ -57,11 +59,16 @@ mod tests {
         // We can also pass `slice` without `&` so Cow owns it directly. In this
         // case no mutation occurs and thus also no clone, but the result is
         // still owned because it was never borrowed or mutated.
-        let slice = vec![0, 1, 2];
-        let mut input = Cow::from(slice);
-        match abs_all(&mut input) {
-            // TODO
-        }
+        /*当你传递一个实际的切片值（而不是对它的引用）给 Cow 类型时，Cow 会直接拥有这份数据。
+         *因为没有对数据进行任何修改，所以不会触发克隆操作。然而，由于 Cow 接收到的是数据的所有权，
+         *而不是对现有数据的借用，因此最终的结果是一个被 Cow::Owned 包装的数据副本。 */
+         let slice = vec![0, 1, 2];
+         let mut input = Cow::from(slice);
+         match abs_all(&mut input) {
+             // TODO
+             Cow::Owned(_) => Ok(()),
+             _ => Err("Expected owned value"),
+         }
     }
 
     #[test]
@@ -69,10 +76,15 @@ mod tests {
         // Of course this is also the case if a mutation does occur. In this
         // case the call to `to_mut()` returns a reference to the same data as
         // before.
-        let slice = vec![-1, 0, 1];
-        let mut input = Cow::from(slice);
-        match abs_all(&mut input) {
-            // TODO
-        }
+        /*即使在 Cow 包含的数据被修改的情况下，调用 to_mut() 方法仍然会返回一个指向原来数据的可变引用。
+         *这是因为 Cow 在检测到需要变异时，会自动将借用的数据克隆为拥有的数据，然后进行修改。
+         *因此，to_mut() 调用后返回的引用是指向已经被 Cow 拥有的数据。 */
+         let slice = vec![-1, 0, 1];
+         let mut input = Cow::from(slice);
+         match abs_all(&mut input) {
+             // TODO
+             Cow::Owned(_) => Ok(()),
+             _ => Err("Expected borrowed value"),
+         }
     }
 }
