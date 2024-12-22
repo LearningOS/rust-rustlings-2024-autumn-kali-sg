@@ -3,7 +3,7 @@
 // Execute `rustlings hint macros1` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
+
 
 macro_rules! my_macro {
     () => {
@@ -12,5 +12,6 @@ macro_rules! my_macro {
 }
 
 fn main() {
-    my_macro();
+    // 调用宏 my_macro。宏是以 ! 结尾的，是在 Rust 中区分宏和普通函数调用的方式。
+    my_macro!();
 }
