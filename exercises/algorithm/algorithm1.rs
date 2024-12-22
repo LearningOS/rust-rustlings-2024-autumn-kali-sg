@@ -77,29 +77,48 @@ impl<T> LinkedList<T> {
         //     start: None,
         //     end: None,
         // }
-        let mut merged_list = LinkedList::new();
-        let mut a_index = 0;
-        let mut b_index = 0;
-        while a_index < list_a.length as i32 && b_index < list_b.length as i32 {   // 合并单链表 
-            let a_val = list_a.get(a_index).unwrap().clone();
-            let b_val = list_b.get(b_index).unwrap().clone();
-            if a_val <= b_val {
-                merged_list.add(a_val);
-                a_index += 1;
-            } else {
-                merged_list.add(b_val);
-                b_index += 1;
+        let mut merged_list = LinkedList::<T>::new();
+        let mut list_a_node_opt = list_a.start;
+        let mut list_b_node_opt = list_b.start;
+        let mut next_node_opt = None;
+
+        // 当两个链表都不为空时，比较两个链表的头节点的值，将较小的节点加入到新链表中
+        loop {
+            match (list_a_node_opt, list_b_node_opt) {
+                (Some(list_a_node), Some(list_b_node)) => {
+                    let list_a_node_ref = unsafe { list_a_node.as_ref() };
+                    let list_b_node_ref = unsafe { list_b_node.as_ref() };
+                    if list_a_node_ref.val < list_b_node_ref.val {
+                        next_node_opt = Some(list_a_node);
+                        list_a_node_opt = list_a_node_ref.next;
+                    } else {
+                        next_node_opt = Some(list_b_node);
+                        list_b_node_opt = list_b_node_ref.next;
+                    }
+                }
+                (Some(list_a_node), None) => {
+                    next_node_opt = Some(list_a_node);
+                    list_a_node_opt = unsafe { list_a_node.as_ref().next };
+                }
+                (None, Some(list_b_node)) => {
+                    next_node_opt = Some(list_b_node);
+                    list_b_node_opt = unsafe { list_b_node.as_ref().next };
+                }
+                (None, None) => break,
             }
-        }
-        while a_index < list_a.length as i32 {
-            let a_val = list_a.get(a_index).unwrap().clone();
-            merged_list.add(a_val);
-            a_index += 1;
-        }
-        while b_index < list_b.length as i32 {
-            let b_val = list_b.get(b_index).unwrap().clone();
-            merged_list.add(b_val);
-            b_index += 1;
+
+            // 当新链表为空时，将新链表的头节点指向第一个节点
+            if merged_list.start.is_none() {
+                merged_list.start = next_node_opt;
+            }
+
+            // 将新链表的尾节点指向新加入的节点
+            if let Some(end) = merged_list.end.as_mut() {
+                unsafe { end.as_mut().next = next_node_opt };
+            }
+
+            // 更新新链表的尾节点
+            merged_list.end = next_node_opt;
         }
         merged_list
 	}
